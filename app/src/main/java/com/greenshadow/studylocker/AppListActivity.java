@@ -23,4 +23,4 @@ public class AppListActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
     }
-}
+
