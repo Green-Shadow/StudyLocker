@@ -27,5 +27,5 @@ public class AppListActivity extends AppCompatActivity {
         ListView listView = (ListView) findViewById(R.id.listview);
         listView.setAdapter(new AppListAdapter(this,disp_packages));
     }
-    }//Test
+    }
 
