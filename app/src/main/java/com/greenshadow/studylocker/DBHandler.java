@@ -87,7 +87,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public void deleteApp(String appName) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_LOCKEDAPPS, KEY_ID + " = ?",
+        db.delete(TABLE_LOCKEDAPPS, PACKAGE_NAME + " = ?",
                 new String[] {appName});
         Log.d("DBHelper",appName + " deleted from DB");
         db.close();
