@@ -1,6 +1,5 @@
 package com.greenshadow.studylocker;
 
-
 import android.content.pm.ApplicationInfo;
 import android.util.Log;
 import android.widget.BaseAdapter;
@@ -13,7 +12,6 @@ import android.content.pm.PackageManager;
 import android.widget.Switch;
 import android.widget.CompoundButton;
 
-
 import java.util.List;
 
 public class AppListAdapter extends BaseAdapter{
@@ -22,10 +20,10 @@ public class AppListAdapter extends BaseAdapter{
     private List<ApplicationInfo> packages;
     private PackageManager packageManager;
 
-    public AppListAdapter(Context context, List<ApplicationInfo> items) {
+    public AppListAdapter(Context context,List<ApplicationInfo> items) {
         mContext = context;
-        packageManager = mContext.getPackageManager();
         packages = items;
+        packageManager = mContext.getPackageManager();
         mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -69,6 +67,10 @@ public class AppListAdapter extends BaseAdapter{
         appName.setText(packageManager.getApplicationLabel(info).toString());
         appIcon.setImageDrawable(packageManager.getApplicationIcon(info));
         return rowView;
+    }
+
+    public void setItemList(List<ApplicationInfo> items) {
+        this.packages = items;
     }
 
 }
