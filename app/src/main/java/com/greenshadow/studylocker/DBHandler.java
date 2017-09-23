@@ -50,7 +50,7 @@ public class DBHandler extends SQLiteOpenHelper {
     // Getting All Contacts
     public List<String> getAllApps() {
         List<String> appList = new ArrayList<String>();
-        String selectQuery = "SELECT  * FROM " + TABLE_LOCKEDAPPS;
+        String selectQuery = "SELECT " + PACKAGE_NAME  + " FROM " + TABLE_LOCKEDAPPS;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
         if (cursor.moveToFirst()) {

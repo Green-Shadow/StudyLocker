@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">StudyLocker</string>
+    <string name="accessibility_service_description">This is required for the locking functionality to work</string>
 </resources>

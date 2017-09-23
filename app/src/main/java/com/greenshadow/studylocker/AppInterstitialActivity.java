@@ -2,6 +2,7 @@ package com.greenshadow.studylocker;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 
 public class AppInterstitialActivity extends AppCompatActivity {
@@ -11,5 +12,9 @@ public class AppInterstitialActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_app_interstitial);
+    }
+
+    public void AllowAccess(View v){
+        finish();
     }
 }
