@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -23,6 +24,8 @@ import android.widget.ProgressBar;
 import java.util.List;
 import java.util.ArrayList;
 
+import io.sentry.Sentry;
+import io.sentry.android.AndroidSentryClientFactory;
 
 public class AppListActivity extends AppCompatActivity {
     private AppListAdapter adpt;
@@ -30,35 +33,30 @@ public class AppListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String sentryDsn = "https://913ac8d91a5d4f53a1d778dfcb9ea0b4:ba20ce0259574763a0a92928fabc3af2@sentry.io/221268?options";
+        Sentry.init(sentryDsn, new AndroidSentryClientFactory(this.getApplicationContext()));
         setContentView(R.layout.activity_app_list);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-        ListView listView = (ListView) findViewById(R.id.listview);
+        getSupportActionBar().setTitle("Select Apps");
+        ListView listView = findViewById(R.id.listview);
         adpt = new AppListAdapter(this, new ArrayList<ApplicationInfo>());
         listView.setAdapter(adpt);
         new LoadList().execute();
-        if (!isAccessibilityEnabled(this, "com.greenshadow.studylocker/.AppLockService")) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Enable the accessibility service")
-                    .setPositiveButton("Enable", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                            startActivityForResult(intent, 0);
-                            Intent serviceIntent = new Intent(AppListActivity.this, AppLockService.class);
-                            startService(serviceIntent);
-                            Log.d("SERVICE", "Service started");
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-
-                        }
-                    });
-            builder.show();
+        if (!isAccessibilityEnabled(this)) {
+            promptAccessibility();
         }else{
             Intent serviceIntent = new Intent(AppListActivity.this, AppLockService.class);
             startService(serviceIntent);
             Log.d("SERVICE", "Service started");
+        }
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        if (!isAccessibilityEnabled(this)) {
+            promptAccessibilitySnackbar();
         }
     }
 
@@ -77,8 +75,12 @@ public class AppListActivity extends AppCompatActivity {
             case R.id.app_lock_button:
                 Intent broadcast1 = new Intent("lock_changestate");
                 if(!b){
-                    b = true;
-                    item.setTitle("Unlock");
+                    if(isAccessibilityEnabled(this)) {
+                        b = true;
+                        item.setTitle("Unlock");
+                    }else{
+                        promptAccessibilitySnackbar();
+                    }
                 }
                 else if(b){
                     b = false;
@@ -124,7 +126,8 @@ public class AppListActivity extends AppCompatActivity {
         return disp_packages;
     }
 
-    public static boolean isAccessibilityEnabled(Context context, String id) {
+    public static boolean isAccessibilityEnabled(Context context) {
+        String id = "com.greenshadow.studylocker/.AppLockService";
         AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
         List<AccessibilityServiceInfo> runningServices = am.getEnabledAccessibilityServiceList(AccessibilityEvent.TYPES_ALL_MASK);
         for (AccessibilityServiceInfo service : runningServices) {
@@ -134,6 +137,39 @@ public class AppListActivity extends AppCompatActivity {
             }
         }
         return false;
+    }
+
+    public void promptAccessibility(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Enable the accessibility service")
+                .setPositiveButton("Enable", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                        startActivityForResult(intent, 0);
+                        Intent serviceIntent = new Intent(AppListActivity.this, AppLockService.class);
+                        startService(serviceIntent);
+                        Log.d("SERVICE", "Service started");
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                });
+        builder.show();
+    }
+
+    public void promptAccessibilitySnackbar(){
+        Snackbar s = Snackbar
+                .make(findViewById(R.id.appListLayout),"Service not enabled",Snackbar.LENGTH_LONG)
+                .setAction("ENABLE",new View.OnClickListener(){
+                    @Override
+                    public void onClick(View view){
+                        Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                        startActivityForResult(intent, 0);
+                    }
+                });
+        s.show();
     }
 }
 
